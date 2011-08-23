@@ -1,20 +1,31 @@
 /**
-* This is a game
+	Snake game 
+	Author 	: Shameer
+	mail 	: me@shameerc.com
 **/
 
 var Balls = function(canvas){
 	
 	// interval in ms
-	var interval 	= 100, ctx, 
+	var interval 	= 50, ctx, 
 		CELL_SIZE 	= 5,
 		C_WIDTH = 600, C_HEIGHT = 400;
+	// directions
+	var UP = 2, DOWN = 4, LEFT = 8, RIGHT = 16;
+
 	var MAX_X = C_WIDTH / CELL_SIZE;
 	var MAX_Y = C_HEIGHT / CELL_SIZE;
+	
 	var PI    = Math.PI;
-	var angle = PI/12, radius = 10, skip = 5;
+	
+	var angle = PI/4, 
+		radius = 10, 
+		skip = 5
+		vDir = DOWN,
+		hDir = LEFT;
 
 	// ball position
-	var intial=ball  = {x:100,y:radius};
+	var lastHit= ball = {x:300,y:radius};
 
 	canvas = $(canvas)[0];
 
@@ -25,14 +36,16 @@ var Balls = function(canvas){
 	function startGame(){
 		setInterval(gameLoop,interval);
 		//drawGrid();
-		drawBall();
+		//drawBall();
 		//clearCanvas();
 	}
 
 	function gameLoop(){
+
 		clearCanvas();
-		getCoords();
 		drawBall();
+		setDirections();
+		getCoords();
 		//advanceBall();
 	}
 
@@ -43,14 +56,74 @@ var Balls = function(canvas){
 		ctx.fill();
 	}
 
+	// set the horizontal and vertical directions on 
+	function setDirections(){
+		if(ball.y >= C_HEIGHT){
+			lastHit = {x:ball.x,y:C_HEIGHT};
+			vDir = UP;
+		}
+		else if(ball.y <= 0){
+			lastHit = {x:ball.x,y:0};
+			vDir = DOWN;
+		}
+		else if(ball.x<=0){
+			lastHit = {x:0,y:ball.y};
+			hDir  = RIGHT;
+		}
+		else if(ball.x >= C_WIDTH){
+			lastHit = {x:C_WIDTH,y:ball.y};
+			hDir  = LEFT;
+		}
+
+	}
+
 	function getCoords(){
 		currCords = ball;
-		if(ball.x >= C_WIDTH || ball.y >= C_HEIGHT){
-			ball = intial;
+
+		
+		if(vDir == DOWN){
+
+			if(hDir == RIGHT){
+				if(lastHit.y == ball.y){
+					newX = Math.tan(angle) * 1;
+				}
+				else{
+					newX = Math.tan(angle) * (ball.y-lastHit.y);
+				}	
+				ball = { x: lastHit.x+Math.round(newX), y : ball.y+skip};
+			}
+			else{
+				if(lastHit.y == ball.y){
+					newX = Math.tan(angle) * 1;
+				}
+				else{
+					newX = Math.tan(angle) * (ball.y-lastHit.y);
+				}
+				ball = { x: lastHit.x-Math.round(newX), y : ball.y+skip};
+			}
+			
 		}
 		else{
-			var newX = Math.tan(angle) * ball.y;
-			ball = { x: intial.x+Math.round(newX), y : ball.y+skip};
+			if(hDir == RIGHT){
+				if(lastHit.y == ball.y){
+					newX = Math.tan(angle) * 1;
+				}
+				else{
+					newX = Math.tan(angle) * (lastHit.y - ball.y);
+				}
+				ball = { x: lastHit.x+Math.round(newX), y : ball.y-skip};
+			}
+			else{
+				if(lastHit.y == ball.y){
+					newX = Math.tan(angle) * 1;
+				}
+				else{
+					newX = Math.tan(angle) * (lastHit.y - ball.y);
+				}
+				//console.log(lastHit.y + ' --- '+ ball.y +'--- newX  ' + newX);
+				ball = { x: lastHit.x-Math.round(newX), y : ball.y-skip};
+				
+			}
 		}
 		//console.log(ball.y);
 	}
@@ -72,7 +145,7 @@ var Balls = function(canvas){
 	}
 
 	function clearCanvas(){
-		canvas.width = canvas.width;
+		ctx.clearRect(0,0,C_WIDTH,C_HEIGHT);
 	}
 
 	function roundNumber(num, dec) {
@@ -86,6 +159,6 @@ var Balls = function(canvas){
 }
 
 $(function(){
-window.balls = new Balls('#canvas');
-balls.start();
+	window.balls = new Balls('#canvas');
+	balls.start();
 })
