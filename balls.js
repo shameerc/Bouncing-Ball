@@ -1,5 +1,5 @@
 /**
-	Snake game 
+	Ball game 
 	Author 	: Shameer
 	mail 	: me@shameerc.com
 **/
