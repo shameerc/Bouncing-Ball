@@ -1,12 +1,14 @@
 /**
-	Snake game 
+	Ball game 
 	Author 	: Shameer
 	mail 	: me@shameerc.com
 **/
 
-var Balls = function(canvas){
+var Balls = function(options){
 	
-	
+	var defaults   = {
+				'canvas' : '#canvas'
+			};
 	var ctx, 
 		CELL_SIZE 	= 5,
 		C_WIDTH = 600, C_HEIGHT = 400;
@@ -15,15 +17,20 @@ var Balls = function(canvas){
 
 	var PI    = Math.PI;
 	
-	var angle 		= PI/4, 
-		interval 	= 40, // interval in ms
+	var angle 		= PI/6, 
+		interval 	= 30, timer, // interval in ms
 		radius 		= 10, 
 		skip 		= 5
 		vDir 		= DOWN,
-		hDir 		= LEFT;
+		hDir 		= LEFT,
+		barWidth 	= 100,
+		displacement= 10;
 
 	// ball position
 	var lastHit = ball = {x:100,y:radius};
+
+	// position of bar
+	var bar = {x:100,y:0};
 
 	canvas = $(canvas)[0];
 
@@ -31,13 +38,23 @@ var Balls = function(canvas){
 		ctx = canvas.getContext('2d');
 	}
 
+	window.addEventListener('keypress',moveBar,false);
+
+
+
 	function startGame(){
-		setInterval(gameLoop,interval);
+		timer = setInterval(gameLoop,interval);
+	}
+	function stopGame(){
+		clearInterval(timer);
+		this.onStop();
 	}
 
 	function gameLoop(){
 		clearCanvas();
 		drawBall();
+		placeBar();
+		checkCollission();
 		setDirections();
 		getCoords();
 	}
@@ -111,16 +128,57 @@ var Balls = function(canvas){
 		}
 	}
 
+	function placeBar(){
+		ctx.save();
+		ctx.translate(0,C_HEIGHT);
+		ctx.fillStyle = 'blue';
+		ctx.fillRect(bar.x, 0, barWidth, 10); 
+		ctx.restore();
+	}
+
+	function moveBar(e){
+		switch(e.keyCode){
+			case 37 : changeBarPosition('left');
+					  break;
+			case 39 : changeBarPosition('right');
+					  break;		  
+		}
+	}
+
+	function changeBarPosition(dir){
+		if(dir == 'right'){
+			if((bar.x+barWidth) < C_WIDTH){
+				bar.x += displacement;
+			}
+		}	
+		else if(dir == 'left'){
+			if((bar.x)>0){
+				bar.x -= displacement;
+			}
+		}
+	}
+
+	function checkCollission(){
+		if(ball.y+radius==C_HEIGHT && (
+				(ball.x < bar.x) || (bar.x + barWidth) < ball.x ) ){
+					stopGame();
+				}
+	}
+
 	function clearCanvas(){
-		ctx.clearRect(0,0,C_WIDTH,C_HEIGHT);
+		ctx.clearRect(0,0,C_WIDTH+10,C_HEIGHT+10);
 	}
 
 	return {
-		start : startGame
+		start : startGame,
+		onStop  : function(){}
 	};
 }
 
 $(function(){
 	window.balls = new Balls('#canvas');
+	balls.onStop = function(){
+		alert(1);
+	}
 	balls.start();
 })
