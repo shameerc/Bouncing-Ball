@@ -7,8 +7,12 @@
 var Balls = function(options){
 	
 	var defaults   = {
-				'canvas' : '#canvas'
+				canvas : '#canvas',
+				onstart : function(){},
+				onstop : function(){},
+				angle  : Math.PI/6
 			};
+	var options = $.extend({},defaults, options);
 	var ctx, 
 		CELL_SIZE 	= 5,
 		C_WIDTH = 600, C_HEIGHT = 400;
@@ -17,7 +21,7 @@ var Balls = function(options){
 
 	var PI    = Math.PI;
 	
-	var angle 		= PI/6, 
+	var angle 		= options.angle, 
 		interval 	= 30, timer, // interval in ms
 		radius 		= 10, 
 		skip 		= 5
@@ -32,14 +36,17 @@ var Balls = function(options){
 	// position of bar
 	var bar = {x:100,y:0};
 
-	canvas = $(canvas)[0];
+	canvas = $(options.canvas)[0];
 
 	if(canvas.getContext('2d')){
 		ctx = canvas.getContext('2d');
 	}
-
-	window.addEventListener('keypress',moveBar,false);
-
+	if(window.addEventListener){
+		window.addEventListener('keypress',moveBar,false);
+	}
+	else if(window.attachEvent){
+		window.attachEvent('keypress',moveBar,false);
+	}
 
 
 	function startGame(){
@@ -47,7 +54,7 @@ var Balls = function(options){
 	}
 	function stopGame(){
 		clearInterval(timer);
-		this.onStop();
+		options.onstop();
 	}
 
 	function gameLoop(){
@@ -170,15 +177,11 @@ var Balls = function(options){
 	}
 
 	return {
-		start : startGame,
-		onStop  : function(){}
+		start : startGame
 	};
 }
 
 $(function(){
-	window.balls = new Balls('#canvas');
-	balls.onStop = function(){
-		alert(1);
-	}
+	window.balls = new Balls({canvas : '#canvas'});
 	balls.start();
 })
