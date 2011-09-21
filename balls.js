@@ -41,22 +41,30 @@ var Balls = function(options){
 	if(canvas.getContext('2d')){
 		ctx = canvas.getContext('2d');
 	}
+	// cross browser event listener for keyboard events
 	if(window.addEventListener){
 		window.addEventListener('keypress',moveBar,false);
+		if($.browser.webkit){
+			window.addEventListener('keydown',moveBar,false);
+		}
 	}
 	else if(window.attachEvent){
 		window.attachEvent('keypress',moveBar,false);
+		//window.attachEvent('keydown',moveBar,false);
 	}
 
-
+	// start game function
 	function startGame(){
 		timer = setInterval(gameLoop,interval);
 	}
+
+	// stop the game and calll any callback functions
 	function stopGame(){
 		clearInterval(timer);
 		options.onstop();
 	}
 
+	// gameloop, which will be called in each interval
 	function gameLoop(){
 		clearCanvas();
 		drawBall();
@@ -66,6 +74,7 @@ var Balls = function(options){
 		getCoords();
 	}
 
+	// function to draw ball
 	function drawBall(){
 		ctx.fillStyle = 'orange';
 		ctx.beginPath();
@@ -143,15 +152,23 @@ var Balls = function(options){
 		ctx.restore();
 	}
 
+	// change the postion of bar in each interval 
+	// if there is a keyboard event
 	function moveBar(e){
-		switch(e.keyCode){
+		keyCode  = e.keyCode || e.which;
+		switch(keyCode){
 			case 37 : changeBarPosition('left');
 					  break;
+			case 108 : changeBarPosition('left');
+					  break;
 			case 39 : changeBarPosition('right');
+					  break;		  
+			case 114 : changeBarPosition('right');
 					  break;		  
 		}
 	}
 
+	// function to change the bar position
 	function changeBarPosition(dir){
 		if(dir == 'right'){
 			if((bar.x+barWidth) < C_WIDTH){

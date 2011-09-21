@@ -5,24 +5,25 @@
 	<title>HTML5 Example</title> 
 	<link rel="stylesheet" href="html5.css"> 
 	<script src="jquery.js"></script> 
+	<script src="jkey.js"></script> 
 	<script src="balls.js"></script> 
  
 </head> 
 <body> 
-	<div id="outer"> 
-	<header> 
-		
-	</header> 
-	<div id="result" style=""></div> 
-	<div id="points">Points : <span id="current-point">0</span></div> 
-	<div id="controles"><a href="/">Restart</a></div> 
+	<div id="outer">
+	<header>
+		<h2>Welcome to the HTML5 balls game</h2>
+	</header>
+	<div id="result" style=""></div>
+	<div id="points">Points : <span id="current-point">0</span></div>
+	<div id="controles"><a href="javascript:void(0)" onclick="window.location.reload()">Restart</a></div>
 	<canvas height=410 width=600 id="canvas" style="border:1px solid #000;"> 
 		Update your browser to enjoy more
 	</canvas> 
-	<div class="clear"></div> 
-	</div> 
+	<div class="clear"></div>
+	</div>
 	<footer>	
-	An experiment by <a href="http://shameerc.com">Shameer C</a> 
-	</footer> 
+	An experiment by <a href="http://shameerc.com">Shameer C</a>
+	</footer>
 </body> 
 </html> 
