@@ -10,33 +10,43 @@ var Balls = function(options){
 				canvas : '#canvas',
 				onstart : function(){},
 				onstop : function(){},
+				onPause : function(){},
 				angle  : Math.PI/6
 			};
+
 	var options = $.extend({},defaults, options);
+
+	canvas = $(options.canvas)[0];
+
 	var ctx, 
 		CELL_SIZE 	= 5,
-		C_WIDTH = 600, C_HEIGHT = 400;
+		// set the size of canvas
+		C_WIDTH = canvas.width, C_HEIGHT = canvas.height-10;
+
 	// directions
 	var UP = 2, DOWN = 4, LEFT = 8, RIGHT = 16;
 
 	var PI    = Math.PI;
 	
 	var angle 		= options.angle, 
-		interval 	= 30, timer, // interval in ms
+		interval 	= 1000/30, timer, // interval in ms
 		radius 		= 10, 
-		skip 		= 5
+		step 		= 10, 	// speed of ball
 		vDir 		= DOWN,
 		hDir 		= LEFT,
 		barWidth 	= 100,
-		displacement= 10;
+		displacement= 10,
+		paused		= true,
+		stopped		= false,
+		p_inc		= 5,
+		points		= 0;
+
 
 	// ball position
 	var lastHit = ball = {x:100,y:radius};
 
 	// position of bar
 	var bar = {x:100,y:0};
-
-	canvas = $(options.canvas)[0];
 
 	if(canvas.getContext('2d')){
 		ctx = canvas.getContext('2d');
@@ -50,18 +60,28 @@ var Balls = function(options){
 	}
 	else if(window.attachEvent){
 		window.attachEvent('keypress',moveBar,false);
-		//window.attachEvent('keydown',moveBar,false);
 	}
 
 	// start game function
 	function startGame(){
-		timer = setInterval(gameLoop,interval);
+		if((typeof timer == 'undefined' || paused) && ! stopped){
+			timer = setInterval(gameLoop,interval);
+		}
+		paused = false;
 	}
 
 	// stop the game and calll any callback functions
 	function stopGame(){
 		clearInterval(timer);
+		stopped 	= true;
 		options.onstop();
+	}
+
+	// pause the game and call any callback function
+	function pauseGame(){
+		clearInterval(timer);
+		paused 		= true;
+		options.onPause();
 	}
 
 	// gameloop, which will be called in each interval
@@ -118,32 +138,33 @@ var Balls = function(options){
 			newX = Math.round( Math.tan(angle) * yAbs);
 		}
 		// if the ball is moving down
-		// y must be added with the skip value
+		// y must be added with the step value
 		if(vDir == DOWN){
 			// if the direction is right
 			// x must be added
 			if(hDir == RIGHT){
-				ball = {x: lastHit.x+newX, y : ball.y+skip};
+				ball = {x: lastHit.x+newX, y : ball.y+step};
 			}
 			else{
 				// direction is left, so subtract the x
-				ball = { x: lastHit.x-newX, y : ball.y+skip};
+				ball = { x: lastHit.x-newX, y : ball.y+step};
 			}
 		}
 		else{
 			// direction is up
-			// subtract skip from y
+			// subtract step from y
 			if(hDir == RIGHT){
 				// direction is right, add x
-				ball = { x: lastHit.x+newX, y : ball.y-skip};
+				ball = { x: lastHit.x+newX, y : ball.y-step};
 			}
 			else{
 				// direction is left, subtract s
-				ball = { x: lastHit.x-newX, y : ball.y-skip};
+				ball = { x: lastHit.x-newX, y : ball.y-step};
 			}
 		}
 	}
 
+	// place the moving bar 
 	function placeBar(){
 		ctx.save();
 		ctx.translate(0,C_HEIGHT);
@@ -182,23 +203,51 @@ var Balls = function(options){
 		}
 	}
 
+
+	// collission detection logic
 	function checkCollission(){
 		if(ball.y+radius==C_HEIGHT && (
 				(ball.x < bar.x) || (bar.x + barWidth) < ball.x ) ){
 					stopGame();
 				}
+		else if(ball.y+radius==C_HEIGHT ){
+
+			updatePonits();
+		}		
+	}
+
+	// update points and display on the screen
+	function updatePonits(){
+		points	+= p_inc;
+		$('#current-point').html(points);
 	}
 
 	function clearCanvas(){
 		ctx.clearRect(0,0,C_WIDTH+10,C_HEIGHT+10);
 	}
 
+	function speedUp(){
+		step++;
+	}
+
+	function speedDown(){
+		step--;
+	}
+
 	return {
-		start : startGame
+		start : startGame,
+		stop  : stopGame,
+		pause : pauseGame,
 	};
 }
 
 $(function(){
-	window.balls = new Balls({canvas : '#canvas'});
-	balls.start();
+	balls = new Balls({canvas : '#canvas'});
+	$('#starter').click(function(){
+		balls.start();
+	})
+	$('#stoper').click(function(){
+		balls.pause();
+	})
+	
 })
