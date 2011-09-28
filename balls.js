@@ -75,6 +75,7 @@ var Balls = function(options){
 		clearInterval(timer);
 		stopped 	= true;
 		options.onstop();
+		$('#result').html('Game finished, points : ' + points);
 	}
 
 	// pause the game and call any callback function
@@ -242,7 +243,9 @@ var Balls = function(options){
 }
 
 $(function(){
-	balls = new Balls({canvas : '#canvas'});
+	balls = new Balls({
+					canvas : '#canvas'
+				});
 	$('#starter').click(function(){
 		balls.start();
 	})
