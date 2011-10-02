@@ -87,10 +87,16 @@ var Balls = function(options){
 
 	// gameloop, which will be called in each interval
 	function gameLoop(){
+
+		//draw ojects
 		clearCanvas();
 		drawBall();
 		placeBar();
-		checkCollission();
+		
+		// collision detection
+		checkCollision();
+		
+		// update state
 		setDirections();
 		getCoords();
 	}
@@ -206,7 +212,7 @@ var Balls = function(options){
 
 
 	// collission detection logic
-	function checkCollission(){
+	function checkCollision(){
 		if(ball.y+radius==C_HEIGHT && (
 				(ball.x < bar.x) || (bar.x + barWidth) < ball.x ) ){
 					stopGame();
@@ -242,7 +248,8 @@ var Balls = function(options){
 	};
 }
 
-$(function(){
+jQuery(function(){
+	$ = jQuery;
 	balls = new Balls({
 					canvas : '#canvas'
 				});
